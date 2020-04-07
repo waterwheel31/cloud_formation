@@ -1,0 +1,39 @@
+Description: 
+    This creates IAM role for S3
+
+Parameters:
+  EnvironmentName:
+      Description: Anenvironment name
+      Type: String
+      Default: "production"
+
+Resources:
+    IAMRoleS3:
+      Type: "AWS::IAM::Role"
+      Properties:
+        ManagedPolicyArns:
+          - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Service:
+                  - "ec2.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Path: "/"
+  
+    IAMIPS3:
+      Type: "AWS::IAM::InstanceProfile"
+      Properties:
+        Path: "/"
+        Roles:
+          - Ref: "IAMRoleS3"
+  
+Outputs:
+    IAMRoleWebApp:
+      Description: "Allow EC2 instances to read S3"
+      Value: !Ref IAMIPS3
+      Export:
+        Name: !Sub ${EnvironmentName}-IAM-NAME

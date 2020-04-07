@@ -10,7 +10,7 @@ This excercise is to launch servers to a very simple web app automatically using
 
 ## Specs 
 
-- A web app deployed into 4 application servers (in 2 private subnates) with Load Balancer on public subnets
+- A web app deployed into 4 application servers (in 2 private subnets) with Load Balancer on public subnets
 - Eash machine has 
     - 2 vCPUs 
     - 4 GB RAM
@@ -27,7 +27,6 @@ This excercise is to launch servers to a very simple web app automatically using
 
 
 ## How to Run
-
 - To launch (create the Cloud Formation stack):
     -  `./create.sh` 
     - ` ./create_server.sh` 
@@ -35,6 +34,7 @@ This excercise is to launch servers to a very simple web app automatically using
     - `./update.sh` 
     - `./update_server.sh`
 
-## Access URL 
+## URL of the App 
 
-- simpl-WebAp-1N967SC5Q92SE-789665295.us-east-1.elb.amazonaws.com:80  (will be terminated later)
+- http://simpl-webap-cd74yg5ns14f-1240904793.us-east-1.elb.amazonaws.com/ 
+ (will be terminated later)

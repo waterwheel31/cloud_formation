@@ -8,19 +8,18 @@ Parameters:
         Type: String
 
 Resources: 
-
     LBSecGroup: 
         Type: AWS::EC2::SecurityGroup
         Properties:
             GroupDescription: Allow http to our load balancer
             SecurityGroupEgress: 
                 - IpProtocol: tcp
-                  FromPort: 80
-                  ToPort: 80
-                  CidrIp: 0.0.0.0/0
-                - IpProtocol: tcp
                   FromPort: 8080
                   ToPort: 8080
+                  CidrIp: 0.0.0.0/0
+                - IpProtocol: tcp
+                  FromPort: 80
+                  ToPort: 80
                   CidrIp: 0.0.0.0/0
             SecurityGroupIngress:
                 - IpProtocol: tcp
@@ -40,8 +39,8 @@ Resources:
                     !Sub "${EnvironmentName}-VPCID"
             SecurityGroupIngress:
             - IpProtocol: tcp
-              FromPort: 8080
-              ToPort: 8080
+              FromPort: 80
+              ToPort: 80
               CidrIp: 0.0.0.0/0
             - IpProtocol: tcp
               FromPort: 22
@@ -59,16 +58,21 @@ Resources:
             UserData:
                 Fn::Base64: !Sub |
                     #!/bin/bash
-            
+                    
                     apt-get update -y
-                    apt-get install unzip awscli -y 
                     apt-get install apache2 -y
-                    systemctl start apache2.service
+                    apt-get install unzip awscli -y
+
                     cd /var/www/html
-                    echo "Udacity Demo Web Server Up and Running!" > index.html
+                    #echo "Udacity Demo Web Server Up and Running!" > index.html
+                    sudo rm /var/www/html/index.html
+                    sudo aws s3 cp s3://simple-app-bucket/index.html .
+                    
+                    systemctl start apache2.service
 
             ImageId: ami-0a4f4704a9146742a
-            
+            IamInstanceProfile:
+                Fn::ImportValue: !Sub "${EnvironmentName}-IAM-NAME"
             SecurityGroups:
             - Ref: WebServerSecGroup
             InstanceType: t3.medium
@@ -76,6 +80,7 @@ Resources:
             - DeviceName: "/dev/sdk"
               Ebs:
                 VolumeSize: '10'
+
     WebAppGroup:
         Type: AWS::AutoScaling::AutoScalingGroup
         Properties:
@@ -84,7 +89,7 @@ Resources:
                 !Sub "${EnvironmentName}-PRIV-NETS"
             LaunchConfigurationName:
                 Ref: WebAppLaunchConfig
-            MinSize: '4'
+            MinSize: '2'
             MaxSize: '5'
             TargetGroupARNs:
             - Ref: WebAppTargetGroup
@@ -130,7 +135,7 @@ Resources:
             HealthCheckProtocol: HTTP
             HealthCheckTimeoutSeconds: 8
             HealthyThresholdCount: 2
-            Port: 8080
+            Port: 80
             Protocol: HTTP
             UnhealthyThresholdCount: 5
             VpcId: 
